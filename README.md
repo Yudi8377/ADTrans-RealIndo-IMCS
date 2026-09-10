@@ -31,9 +31,10 @@ The browser uses a Supabase **publishable key**. Supabase documents publishable 
 - Role-aware write access: SUPER_ADMIN, DIRECTOR, COMMISSIONER, EXECUTIVE, DEPARTMENT_HEAD and MANAGER
 - STAFF and AUDITOR are read-only at the database policy layer
 - Trusted database audit triggers for core organization-owned records
+- New Auth users receive a default REALINDO STAFF profile automatically; elevated roles are assigned explicitly
 - Security Advisor: no current security findings
 - Performance Advisor: no public-schema warning findings; one informational legacy-staging FK remains
-- Production migrations are mirrored under `supabase/migrations/0004` through `0007`
+- Production migrations are mirrored under `supabase/migrations/0004` through `0008`
 
 ## Application capabilities
 
