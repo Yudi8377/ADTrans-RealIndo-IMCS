@@ -13,6 +13,15 @@
     <script>
       // Dedicated IMCS entry point: never render the public corporate route here.
       if (location.hash !== '#imcs') location.hash = '#imcs';
+
+      // Keep implementation/security details out of the user-facing login screen.
+      const cleanLoginCopy = () => {
+        document.querySelectorAll('.login-page .muted').forEach((el) => {
+          if (el.textContent.includes('Supabase Auth') || el.textContent.includes('organization-scoped RLS')) el.remove();
+        });
+      };
+      new MutationObserver(cleanLoginCopy).observe(document.documentElement, { childList: true, subtree: true });
+      cleanLoginCopy();
     </script>
     <script type="module" src="./src/main.js"></script>
     <script type="module" src="./src/aig.js"></script>
