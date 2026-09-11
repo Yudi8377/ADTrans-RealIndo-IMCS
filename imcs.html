@@ -10,6 +10,10 @@
   </head>
   <body>
     <div id="app"></div>
+    <script>
+      // Dedicated IMCS entry point: never render the public corporate route here.
+      if (location.hash !== '#imcs') location.hash = '#imcs';
+    </script>
     <script type="module" src="./src/main.js"></script>
     <script type="module" src="./src/aig.js"></script>
   </body>
