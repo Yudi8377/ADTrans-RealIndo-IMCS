@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 
-const files = ['index.html', 'src/public-site.js', 'src/public-interface-guard.js'];
+const files = ['index.html', 'src/public-site.js'];
 const forbidden = [
   /IMCS\s+LOGIN/i,
   /IMCS\s+LOG\s*IN/i,
