@@ -1,5 +1,7 @@
 import { defineConfig } from 'vite';
-import { resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const rootDir = fileURLToPath(new URL('.', import.meta.url));
 
 export default defineConfig({
   // GitHub Pages serves this project from /ADTrans-RealIndo-IMCS/.
@@ -7,11 +9,10 @@ export default defineConfig({
   base: process.env.GITHUB_ACTIONS ? '/ADTrans-RealIndo-IMCS/' : '/',
   build: {
     rollupOptions: {
-      // Explicit multi-page inputs are required so the dedicated IMCS entry
-      // is emitted to dist/imcs.html alongside the corporate index.html.
+      // Explicit multi-page inputs ensure dist/imcs.html is emitted.
       input: {
-        corporate: resolve(__dirname, 'index.html'),
-        imcs: resolve(__dirname, 'imcs.html'),
+        corporate: `${rootDir}index.html`,
+        imcs: `${rootDir}imcs.html`,
       },
     },
   },
