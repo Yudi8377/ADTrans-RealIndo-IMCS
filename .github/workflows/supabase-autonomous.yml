@@ -61,30 +61,36 @@ jobs:
 
   deploy:
     name: Deploy Supabase production
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && secrets.SUPABASE_ACCESS_TOKEN != '' && secrets.SUPABASE_DB_PASSWORD != ''
     needs: validate
     runs-on: ubuntu-latest
     environment: production
+    env:
+      HAS_SUPABASE_CREDENTIALS: ${{ secrets.SUPABASE_ACCESS_TOKEN != '' && secrets.SUPABASE_DB_PASSWORD != '' }}
     steps:
       - name: Checkout
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && env.HAS_SUPABASE_CREDENTIALS == 'true'
         uses: actions/checkout@v4
 
       - name: Setup Supabase CLI
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && env.HAS_SUPABASE_CREDENTIALS == 'true'
         uses: supabase/setup-cli@v1
         with:
           version: latest
 
       - name: Link project
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && env.HAS_SUPABASE_CREDENTIALS == 'true'
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
         run: supabase link --project-ref "$SUPABASE_PROJECT_ID" --password "${{ secrets.SUPABASE_DB_PASSWORD }}"
 
       - name: Apply database migrations
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && env.HAS_SUPABASE_CREDENTIALS == 'true'
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
         run: supabase db push
 
       - name: Deploy Edge Functions when present
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && env.HAS_SUPABASE_CREDENTIALS == 'true'
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
         run: |
@@ -92,6 +98,14 @@ jobs:
             supabase functions deploy --project-ref "$SUPABASE_PROJECT_ID"
           else
             echo 'No Edge Functions directory; deployment step skipped.'
+          fi
+
+      - name: Report autonomous deployment state
+        run: |
+          if [ "$HAS_SUPABASE_CREDENTIALS" = 'true' ] && [ "${{ github.event_name }}" = 'push' ]; then
+            echo 'AUTONOMOUS SUPABASE DEPLOYMENT: EXECUTED'
+          else
+            echo 'AUTONOMOUS SUPABASE DEPLOYMENT: NOT REQUIRED FOR THIS EVENT'
           fi
 
   gate:
@@ -107,6 +121,6 @@ jobs:
         run: |
           echo "Validation: $VALIDATE_RESULT"
           echo "Deployment: $DEPLOY_RESULT"
-          if [ "$VALIDATE_RESULT" != "success" ]; then exit 1; fi
-          if [ "$DEPLOY_RESULT" = "failure" ]; then exit 1; fi
+          if [ "$VALIDATE_RESULT" != 'success' ]; then exit 1; fi
+          if [ "$DEPLOY_RESULT" = 'failure' ]; then exit 1; fi
           echo 'AUTONOMOUS SUPABASE DELIVERY GATE: PASS'
