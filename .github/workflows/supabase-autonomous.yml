@@ -1,0 +1,112 @@
+name: Autonomous Supabase Delivery
+
+on:
+  pull_request:
+    paths:
+      - 'supabase/**'
+      - '.github/workflows/supabase-autonomous.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/**'
+      - '.github/workflows/supabase-autonomous.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: supabase-autonomous-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  SUPABASE_PROJECT_ID: nfvkdqpxexfymzuwdorx
+
+jobs:
+  validate:
+    name: Validate Supabase migrations
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Validate migration files
+        run: |
+          test -d supabase/migrations
+          count=$(find supabase/migrations -maxdepth 1 -type f -name '*.sql' | wc -l)
+          test "$count" -gt 0
+          echo "Validated $count migration files."
+
+      - name: Verify migration naming and duplicate versions
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          files = sorted(Path('supabase/migrations').glob('*.sql'))
+          versions = []
+          for f in files:
+              m = re.match(r'^(\d+)_', f.name)
+              if not m:
+                  raise SystemExit(f'Invalid migration filename: {f.name}')
+              versions.append(m.group(1))
+          if len(versions) != len(set(versions)):
+              raise SystemExit('Duplicate migration version detected')
+          print(f'Migration naming PASS: {len(files)} files')
+          PY
+
+  deploy:
+    name: Deploy Supabase production
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && secrets.SUPABASE_ACCESS_TOKEN != '' && secrets.SUPABASE_DB_PASSWORD != ''
+    needs: validate
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Link project
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: supabase link --project-ref "$SUPABASE_PROJECT_ID" --password "${{ secrets.SUPABASE_DB_PASSWORD }}"
+
+      - name: Apply database migrations
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: supabase db push
+
+      - name: Deploy Edge Functions when present
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          if [ -d supabase/functions ]; then
+            supabase functions deploy --project-ref "$SUPABASE_PROJECT_ID"
+          else
+            echo 'No Edge Functions directory; deployment step skipped.'
+          fi
+
+  gate:
+    name: Autonomous delivery gate
+    needs: [validate, deploy]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Evaluate delivery state
+        env:
+          VALIDATE_RESULT: ${{ needs.validate.result }}
+          DEPLOY_RESULT: ${{ needs.deploy.result }}
+        run: |
+          echo "Validation: $VALIDATE_RESULT"
+          echo "Deployment: $DEPLOY_RESULT"
+          if [ "$VALIDATE_RESULT" != "success" ]; then exit 1; fi
+          if [ "$DEPLOY_RESULT" = "failure" ]; then exit 1; fi
+          echo 'AUTONOMOUS SUPABASE DELIVERY GATE: PASS'
