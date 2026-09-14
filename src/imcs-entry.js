@@ -1,22 +1,19 @@
 // Core browser entry for the IMCS application.
-// Keep optional administration/AIG modules out of the critical startup path.
-// Branding is imported here so production Vite builds one application graph and
-// never require the browser to execute the raw source branding module directly.
+// Optional modules load after the core renderer so one module cannot blank the app.
 import './main.js';
 import './brand-enhancer.js';
 
-// Optional modules are loaded after the core IMCS renderer is available.
-// Their failure is diagnostic-only and must never blank the main application.
 Promise.allSettled([
   import('./admin.js'),
   import('./aig.js'),
   import('./housing.js'),
   import('./master-data.js'),
   import('./enterprise.js'),
+  import('./workforce.js'),
 ]).then((results) => {
   results.forEach((result, index) => {
     if (result.status === 'rejected') {
-      const names = ['admin', 'AIG', 'housing', 'master-data', 'enterprise'];
+      const names = ['admin', 'AIG', 'housing', 'master-data', 'enterprise', 'workforce'];
       console.error(`[IMCS] ${names[index]} module failed to load`, result.reason);
     }
   });
