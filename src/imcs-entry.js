@@ -11,10 +11,11 @@ Promise.allSettled([
   import('./enterprise.js'),
   import('./workforce.js'),
   import('./operations.js'),
+  import('./transaction-controls.js'),
 ]).then((results) => {
   results.forEach((result, index) => {
     if (result.status === 'rejected') {
-      const names = ['admin', 'AIG', 'housing', 'master-data', 'enterprise', 'workforce', 'operations'];
+      const names = ['admin', 'AIG', 'housing', 'master-data', 'enterprise', 'workforce', 'operations', 'transaction-controls'];
       console.error(`[IMCS] ${names[index]} module failed to load`, result.reason);
     }
   });
