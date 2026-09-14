@@ -10,10 +10,12 @@ import './brand-enhancer.js';
 Promise.allSettled([
   import('./admin.js'),
   import('./aig.js'),
+  import('./housing.js'),
 ]).then((results) => {
   results.forEach((result, index) => {
     if (result.status === 'rejected') {
-      console.error(index === 0 ? '[IMCS] admin module failed to load' : '[IMCS] AIG module failed to load', result.reason);
+      const names = ['admin', 'AIG', 'housing'];
+      console.error(`[IMCS] ${names[index]} module failed to load`, result.reason);
     }
   });
 });
