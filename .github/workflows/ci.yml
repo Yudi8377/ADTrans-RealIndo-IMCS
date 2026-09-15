@@ -13,6 +13,8 @@ jobs:
       - run: npm run test
       - name: Rebuild preview with local asset base
         run: env -u GITHUB_ACTIONS npm run build
+      - name: Install Chromium for browser smoke
+        run: npx --yes playwright@1.55.0 install --with-deps chromium
       - name: Start production preview
         run: |
           npm run preview -- --host 127.0.0.1 > /tmp/adtrans-vite.log 2>&1 &
