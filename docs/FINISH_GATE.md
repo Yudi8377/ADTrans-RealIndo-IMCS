@@ -11,6 +11,7 @@
 - Attendance uses server-side event recording and idempotency.
 - AI Gateway requires authenticated JWT and validates organization, companion, conversation, agent/version and tool policy before recording a run.
 - ADEI design decisions require governed approval before baseline.
+- Initial organization administrator activation is handled by the authenticated `imcs-bootstrap-admin` Edge Function. It is available only while the organization has no active `SUPER_ADMIN`; once the first administrator exists, bootstrap closes permanently.
 
 ## Verified deployment gates
 - Main branch is merged and the GitHub Pages workflow successfully built and deployed the verified artifact for the release commit.
@@ -22,7 +23,7 @@
 - Compensating controls are application-layer authentication, RBAC/RLS, server-side authorization, login/session auditing, rate limiting where implemented, bounded sessions, and future MFA/step-up authentication.
 
 ## Production readiness gates still requiring real operational inputs
-1. Verify the intended privileged Auth user through an authorized Supabase Auth/admin workflow; never bootstrap privileged access by modifying a profile role blindly.
+1. Execute the controlled initial administrator activation for the intended Auth user; never edit a profile role directly to bypass authorization.
 2. Register real employees, shifts and approved attendance devices.
 3. Configure chart of accounts and approval policies with final company policy.
 4. Configure payroll/tax rules and bank payment integration only after bank sandbox/authorization exists.
