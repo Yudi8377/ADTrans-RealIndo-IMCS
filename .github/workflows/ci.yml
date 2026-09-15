@@ -10,7 +10,4 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npm run build
-      - run: node scripts/verify-public-boundary.mjs
-      - run: node scripts/verify-ai-companion.mjs
-      - run: node scripts/verify-release.mjs
+      - run: npm run test
