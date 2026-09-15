@@ -6,6 +6,7 @@ import { mountAICompanion } from './ai-companion.js';
 import { resolveAIRuntimeContext } from './ai-runtime-context.js';
 import { listAITools } from './ai-tool-registry.js';
 import { getADEIDesignTypes } from './adei.js';
+import { mountADEI } from './adei-ui.js';
 
 Promise.allSettled([
   import('./admin.js'),
@@ -27,12 +28,13 @@ Promise.allSettled([
 
   try {
     const context = await resolveAIRuntimeContext('IMCS');
-    // Keep capability discovery local and non-authoritative. Server policy remains the source of truth.
     context.aiToolCount = listAITools(context.capabilities || []).length;
     context.adeiDesignTypeCount = getADEIDesignTypes().length;
+    mountADEI(context);
     mountAICompanion(context);
   } catch (error) {
-    console.error('[IMCS] AI Companion context resolution failed', error);
+    console.error('[IMCS] AI runtime context resolution failed', error);
+    mountADEI({ application: 'IMCS' });
     mountAICompanion({ application: 'IMCS' });
   }
 });
