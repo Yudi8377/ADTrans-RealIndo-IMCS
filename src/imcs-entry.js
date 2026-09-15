@@ -3,6 +3,7 @@
 import './main.js';
 import './brand-enhancer.js';
 import { mountAICompanion } from './ai-companion.js';
+import { resolveAIRuntimeContext } from './ai-runtime-context.js';
 
 Promise.allSettled([
   import('./admin.js'),
@@ -14,7 +15,7 @@ Promise.allSettled([
   import('./operations.js'),
   import('./transaction-controls.js'),
   import('./finance-controls.js'),
-]).then((results) => {
+]).then(async (results) => {
   results.forEach((result, index) => {
     if (result.status === 'rejected') {
       const names = ['admin', 'AIG', 'housing', 'master-data', 'enterprise', 'workforce', 'operations', 'transaction-controls', 'finance-controls'];
@@ -22,7 +23,13 @@ Promise.allSettled([
     }
   });
 
-  // The companion is a first-class runtime capability and must be mounted
-  // independently of optional business modules.
-  mountAICompanion({ application: 'IMCS' });
+  // Resolve the AI principal from the authenticated profile. The client never
+  // invents organization or role context for the Companion.
+  try {
+    const context = await resolveAIRuntimeContext('IMCS');
+    mountAICompanion(context);
+  } catch (error) {
+    console.error('[IMCS] AI Companion context resolution failed', error);
+    mountAICompanion({ application: 'IMCS' });
+  }
 });
