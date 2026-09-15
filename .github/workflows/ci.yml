@@ -11,6 +11,8 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run test
+      - name: Rebuild preview with local asset base
+        run: env -u GITHUB_ACTIONS npm run build
       - name: Start production preview
         run: |
           npm run preview -- --host 127.0.0.1 > /tmp/adtrans-vite.log 2>&1 &
