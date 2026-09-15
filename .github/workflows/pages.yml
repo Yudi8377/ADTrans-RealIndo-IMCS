@@ -16,6 +16,7 @@ concurrency:
 
 env:
   NODE_VERSION: 22
+  VITE_BASE_PATH: /ADTrans-RealIndo-IMCS/
 
 jobs:
   build:
