@@ -2,6 +2,7 @@
 // Optional modules load after the core renderer so one module cannot blank the app.
 import './main.js';
 import './brand-enhancer.js';
+import { mountAICompanion } from './ai-companion.js';
 
 Promise.allSettled([
   import('./admin.js'),
@@ -20,4 +21,8 @@ Promise.allSettled([
       console.error(`[IMCS] ${names[index]} module failed to load`, result.reason);
     }
   });
+
+  // The companion is a first-class runtime capability and must be mounted
+  // independently of optional business modules.
+  mountAICompanion({ application: 'IMCS' });
 });
