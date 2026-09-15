@@ -10,6 +10,32 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npm run build
-      - run: node scripts/verify-public-boundary.mjs
-      - run: node scripts/verify-release.mjs
+      - run: npm run test
+      - name: Rebuild preview with local asset base
+        run: env -u GITHUB_ACTIONS npm run build
+      - name: Install Chromium for browser smoke
+        run: npx --yes playwright@1.55.0 install --with-deps chromium
+      - name: Start production preview
+        run: |
+          npm run preview -- --host 127.0.0.1 > /tmp/adtrans-vite.log 2>&1 &
+          echo $! > /tmp/adtrans-vite.pid
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/adtrans-vite.log
+          exit 1
+      - name: Browser smoke - corporate surface
+        run: npx --yes playwright@1.55.0 screenshot --device="Desktop Chrome" --wait-for-timeout=2500 http://127.0.0.1:4173/ /tmp/adtrans-corporate.png
+      - name: Browser smoke - IMCS login surface
+        run: npx --yes playwright@1.55.0 screenshot --device="Desktop Chrome" --wait-for-timeout=2500 http://127.0.0.1:4173/imcs.html#imcs /tmp/adtrans-imcs.png
+      - name: Upload browser smoke evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: adtrans-browser-smoke
+          path: |
+            /tmp/adtrans-corporate.png
+            /tmp/adtrans-imcs.png
+            /tmp/adtrans-vite.log
+          if-no-files-found: ignore
