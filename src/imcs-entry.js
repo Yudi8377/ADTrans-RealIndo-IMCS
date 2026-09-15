@@ -4,6 +4,8 @@ import './main.js';
 import './brand-enhancer.js';
 import { mountAICompanion } from './ai-companion.js';
 import { resolveAIRuntimeContext } from './ai-runtime-context.js';
+import { listAITools } from './ai-tool-registry.js';
+import { getADEIDesignTypes } from './adei.js';
 
 Promise.allSettled([
   import('./admin.js'),
@@ -23,10 +25,11 @@ Promise.allSettled([
     }
   });
 
-  // Resolve the AI principal from the authenticated profile. The client never
-  // invents organization or role context for the Companion.
   try {
     const context = await resolveAIRuntimeContext('IMCS');
+    // Keep capability discovery local and non-authoritative. Server policy remains the source of truth.
+    context.aiToolCount = listAITools(context.capabilities || []).length;
+    context.adeiDesignTypeCount = getADEIDesignTypes().length;
     mountAICompanion(context);
   } catch (error) {
     console.error('[IMCS] AI Companion context resolution failed', error);
