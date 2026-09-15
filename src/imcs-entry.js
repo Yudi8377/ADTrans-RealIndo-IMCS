@@ -3,6 +3,7 @@
 import './main.js';
 import './brand-enhancer.js';
 import { mountAICompanion } from './ai-companion.js';
+import { mountAdminBootstrap } from './admin-bootstrap.js';
 import { resolveAIRuntimeContext } from './ai-runtime-context.js';
 import { listAITools } from './ai-tool-registry.js';
 import { getADEIDesignTypes } from './adei.js';
@@ -32,9 +33,11 @@ Promise.allSettled([
     context.adeiDesignTypeCount = getADEIDesignTypes().length;
     mountADEI(context);
     mountAICompanion(context);
+    mountAdminBootstrap();
   } catch (error) {
     console.error('[IMCS] AI runtime context resolution failed', error);
     mountADEI({ application: 'IMCS' });
     mountAICompanion({ application: 'IMCS' });
+    mountAdminBootstrap();
   }
 });
