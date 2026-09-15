@@ -15,18 +15,20 @@
       // Dedicated IMCS application surface. Never fall back to the corporate renderer.
       if (location.hash !== '#imcs') location.hash = '#imcs';
 
-      // Vite/GitHub Pages can briefly serve an HTML document that references a previous
-      // hashed chunk after a deployment. Reload once when that happens instead of leaving
-      // the user on a startup-error screen.
-      window.addEventListener('vite:preloadError', (event) => {
-        event.preventDefault();
-        const key = 'adt-imcs-preload-reload-v4';
+      // Recover once from a stale GitHub Pages HTML/chunk cache after deployment.
+      const reloadOnce = () => {
+        const key = 'adt-imcs-asset-recovery-v5';
         if (!sessionStorage.getItem(key)) {
           sessionStorage.setItem(key, '1');
           location.reload();
-        } else {
-          sessionStorage.removeItem(key);
+          return true;
         }
+        sessionStorage.removeItem(key);
+        return false;
+      };
+      window.addEventListener('vite:preloadError', (event) => {
+        event.preventDefault();
+        if (!reloadOnce()) return;
       });
 
       // Prevent implementation/security details from leaking into the login UI.
@@ -38,13 +40,18 @@
       new MutationObserver(cleanLoginCopy).observe(document.documentElement, { childList: true, subtree: true });
       cleanLoginCopy();
 
-      // Runtime diagnostics: never leave a blank IMCS screen when a browser/runtime error occurs.
+      // Runtime diagnostics: recover from an initial module asset failure once, then show a useful screen.
       window.addEventListener('error', (event) => {
+        const target = event.target;
+        const isModuleAsset = target && target.tagName === 'SCRIPT' && target.type === 'module';
         const app = document.querySelector('#app');
+        if (isModuleAsset && app && !app.children.length) {
+          if (reloadOnce()) return;
+        }
         if (!app || app.children.length) return;
-        app.innerHTML = '<main style="min-height:100vh;display:grid;place-items:center;background:#0b0d0f;color:#fff;font-family:system-ui;padding:24px"><section style="max-width:760px;border:1px solid #343a40;padding:28px;background:#12171b"><strong style="color:#c7a96b">ADTrans RealIndo IMCS</strong><h1 style="margin:12px 0">Application startup error</h1><p style="color:#b8bec3;line-height:1.7">IMCS gagal memuat modul aplikasi. Error runtime sudah ditangkap untuk proses diagnosis.</p><button onclick="location.reload()" style="padding:12px 18px;cursor:pointer">Reload IMCS</button></section></main>';
-      });
+        app.innerHTML = '<main style="min-height:100vh;display:grid;place-items:center;background:#0b0d0f;color:#fff;font-family:system-ui;padding:24px"><section style="max-width:760px;border:1px solid #343a40;padding:28px;background:#12171b"><strong style="color:#c7a96b">ADTrans RealIndo IMCS</strong><h1 style="margin:12px 0">Application startup error</h1><p style="color:#b8bec3;line-height:1.7">IMCS gagal memuat modul aplikasi. Browser sudah mencoba pemulihan cache otomatis.</p><button onclick="location.reload()" style="padding:12px 18px;cursor:pointer">Reload IMCS</button></section></main>';
+      }, true);
     </script>
-    <script type="module" src="./src/imcs-entry.js?v=20260911-4"></script>
+    <script type="module" src="./src/imcs-entry.js?v=20260916-1"></script>
   </body>
 </html>
