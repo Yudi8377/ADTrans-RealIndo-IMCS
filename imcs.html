@@ -36,7 +36,7 @@
             <article class="card"><b>05 · Governance</b><strong>Risk & Compliance</strong><span>Policy, audit evidence, regulatory intelligence and segregation of duties.</span></article>
             <article class="card"><b>06 · Intelligence</b><strong>AI Companion & ADEI</strong><span>Governed AI, design intelligence and decision support with human approval.</span></article>
           </section>
-          <div class="notice">Preview shell aktif. Jika modul aplikasi gagal dimuat karena <code>JavaScript MIME type</code> atau cache hosting, tampilan ini tetap tersedia sehingga IMCS tidak menjadi blank screen. Setelah hosting mengirim asset <code>.js</code> dengan MIME JavaScript yang benar, aplikasi penuh akan mengambil alih halaman ini.</div>
+          <div class="notice">Preview shell aktif. Tampilan ini sengaja tetap dapat dibuka bila hosting sedang menyajikan source tree. Pada artifact Vite, modul IMCS penuh akan mengambil alih halaman ini dan tetap tunduk pada Auth, RLS, RBAC, approval, dan audit.</div>
         </div>
       </main>
     </div>
@@ -44,7 +44,7 @@
     <script>
       if (location.hash !== '#imcs') history.replaceState(null, '', location.pathname + '#imcs');
       const reloadOnce = () => {
-        const key = 'adt-imcs-asset-recovery-v6';
+        const key = 'adt-imcs-asset-recovery-v7';
         if (!sessionStorage.getItem(key)) {
           sessionStorage.setItem(key, '1');
           location.reload();
@@ -59,6 +59,7 @@
         if (target && target.tagName === 'SCRIPT' && target.type === 'module') reloadOnce();
       }, true);
     </script>
-    <script type="module" src="./src/imcs-entry.js?v=20260916-2"></script>
+    <!-- Source-tree safe placeholder. Vite converts this into the bundled module entry. -->
+    <script id="app-entry" type="text/plain" data-vite-entry="./src/imcs-entry.js"></script>
   </body>
 </html>
