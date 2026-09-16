@@ -44,13 +44,17 @@ jobs:
         run: |
           node --input-type=module <<'NODE'
           import { readFile } from 'node:fs/promises';
+          const base = '/ADTrans-RealIndo-IMCS/';
           for (const file of ['dist/index.html', 'dist/imcs.html']) {
             const html = await readFile(file, 'utf8');
-            if (/src="\/(?!\/)/.test(html) || /href="\/(?!\/)/.test(html)) {
-              throw new Error(`${file} contains a root-absolute asset URL; production assets must remain hosting-path agnostic.`);
+            for (const match of html.matchAll(/(?:src|href)="(\/[^\"]*)"/g)) {
+              const url = match[1];
+              if (!url.startsWith(base)) {
+                throw new Error(`${file} contains an unexpected root-absolute asset URL: ${url}`);
+              }
             }
           }
-          console.log('PASS  production asset URLs are relative to each HTML entry point');
+          console.log('PASS  production asset URLs are rooted only at the GitHub Pages project path');
           NODE
       - name: Verify GitHub Pages asset base
         run: |
