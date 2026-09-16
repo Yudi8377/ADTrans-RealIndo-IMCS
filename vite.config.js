@@ -3,14 +3,31 @@ import { fileURLToPath } from 'node:url';
 
 const rootDir = fileURLToPath(new URL('.', import.meta.url));
 
-// Use relative production asset URLs by default so the same artifact works from:
-// - a local Vite preview
+// Use relative production asset URLs so the same artifact works from:
+// - local Vite preview
 // - GitHub Pages project hosting
-// - a future custom domain
-// GitHub Pages overrides this with its explicit project base path in CI.
+// - future custom domains
 const base = process.env.VITE_BASE_PATH || './';
 
+function adtransEntryPlaceholders() {
+  return {
+    name: 'adtrans-entry-placeholders',
+    transformIndexHtml(html) {
+      return html
+        .replace(
+          '<script id="app-entry" type="text/plain" data-vite-entry="./src/public-entry.js"></script>',
+          '<script id="app-entry" type="module" src="./src/public-entry.js"></script>'
+        )
+        .replace(
+          '<script id="app-entry" type="text/plain" data-vite-entry="./src/imcs-entry.js"></script>',
+          '<script id="app-entry" type="module" src="./src/imcs-entry.js"></script>'
+        );
+    },
+  };
+}
+
 export default defineConfig({
+  plugins: [adtransEntryPlaceholders()],
   base,
   build: {
     rollupOptions: {
