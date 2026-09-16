@@ -8,16 +8,43 @@
     <meta name="description" content="ADTrans RealIndo IMCS — secure internal management control system." />
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
     <title>ADTrans RealIndo IMCS</title>
+    <style>
+      :root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#0b0d0f;color:#f5f7f8;color-scheme:dark}
+      *{box-sizing:border-box}
+      body{margin:0;background:#0b0d0f;color:#f5f7f8}
+      .imcs-fallback{min-height:100vh;background:radial-gradient(circle at 80% 0%,rgba(199,169,107,.13),transparent 34%),#0b0d0f;padding:24px}
+      .imcs-shell{width:min(1280px,100%);margin:0 auto}
+      .imcs-top{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:18px 0 28px;border-bottom:1px solid #252b30}
+      .brand{font-weight:900;letter-spacing:.08em;color:#c7a96b}.status{font-size:12px;color:#91a0aa;border:1px solid #30383e;padding:8px 12px;border-radius:999px}
+      .hero{padding:64px 0 36px;max-width:900px}.eyebrow{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#89949c}.hero h1{font-size:clamp(42px,7vw,82px);line-height:.94;letter-spacing:-.045em;margin:16px 0}.hero h1 em{font-style:normal;color:#c7a96b}.hero p{color:#aeb7bd;font-size:18px;line-height:1.75;max-width:760px}
+      .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:30px 0 60px}.card{border:1px solid #252b30;background:#11161a;padding:22px;min-height:150px}.card strong{display:block;font-size:17px;margin-bottom:10px}.card span{color:#89949c;font-size:14px;line-height:1.6}.card b{display:block;color:#c7a96b;font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:20px}
+      .notice{border:1px solid #3b3425;background:#15130e;padding:18px;color:#c9c1ad;line-height:1.65;font-size:14px}.notice code{color:#e1c98f}
+      @media(max-width:800px){.grid{grid-template-columns:1fr 1fr}}@media(max-width:560px){.grid{grid-template-columns:1fr}.imcs-top{align-items:flex-start;flex-direction:column}.hero{padding-top:42px}}
+    </style>
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app">
+      <main class="imcs-fallback" aria-label="ADTrans RealIndo IMCS">
+        <div class="imcs-shell">
+          <header class="imcs-top"><div class="brand">ADTRANS REALINDO · IMCS</div><div class="status">Enterprise Control Plane</div></header>
+          <section class="hero"><div class="eyebrow">Integrated Management Control System</div><h1>One operating system for <em>real business.</em></h1><p>Executive control, projects, property, finance, workforce, contracts, compliance and AI intelligence in one governed operating environment.</p></section>
+          <section class="grid" aria-label="IMCS modules">
+            <article class="card"><b>01 · Executive</b><strong>Executive Cockpit</strong><span>KPI, alerts, decision intelligence and enterprise visibility.</span></article>
+            <article class="card"><b>02 · Assets</b><strong>Land Bank & Property</strong><span>Land, development, property, asset and lifecycle control.</span></article>
+            <article class="card"><b>03 · Delivery</b><strong>Projects & Operations</strong><span>Contracts, work orders, maintenance and delivery execution.</span></article>
+            <article class="card"><b>04 · Finance</b><strong>Finance & Transactions</strong><span>Controlled transactions, approvals, journal lifecycle and payroll controls.</span></article>
+            <article class="card"><b>05 · Governance</b><strong>Risk & Compliance</strong><span>Policy, audit evidence, regulatory intelligence and segregation of duties.</span></article>
+            <article class="card"><b>06 · Intelligence</b><strong>AI Companion & ADEI</strong><span>Governed AI, design intelligence and decision support with human approval.</span></article>
+          </section>
+          <div class="notice">Preview shell aktif. Jika modul aplikasi gagal dimuat karena <code>JavaScript MIME type</code> atau cache hosting, tampilan ini tetap tersedia sehingga IMCS tidak menjadi blank screen. Setelah hosting mengirim asset <code>.js</code> dengan MIME JavaScript yang benar, aplikasi penuh akan mengambil alih halaman ini.</div>
+        </div>
+      </main>
+    </div>
+    <noscript><div style="padding:24px;font:16px system-ui">JavaScript diperlukan untuk pengalaman IMCS penuh. Preview dasar tetap tersedia.</div></noscript>
     <script>
-      // Dedicated IMCS application surface. Never fall back to the corporate renderer.
-      if (location.hash !== '#imcs') location.hash = '#imcs';
-
-      // Recover once from a stale GitHub Pages HTML/chunk cache after deployment.
+      if (location.hash !== '#imcs') history.replaceState(null, '', location.pathname + '#imcs');
       const reloadOnce = () => {
-        const key = 'adt-imcs-asset-recovery-v5';
+        const key = 'adt-imcs-asset-recovery-v6';
         if (!sessionStorage.getItem(key)) {
           sessionStorage.setItem(key, '1');
           location.reload();
@@ -26,32 +53,12 @@
         sessionStorage.removeItem(key);
         return false;
       };
-      window.addEventListener('vite:preloadError', (event) => {
-        event.preventDefault();
-        if (!reloadOnce()) return;
-      });
-
-      // Prevent implementation/security details from leaking into the login UI.
-      const cleanLoginCopy = () => {
-        document.querySelectorAll('.login-page .muted').forEach((el) => {
-          if (el.textContent.includes('Supabase Auth') || el.textContent.includes('organization-scoped RLS')) el.remove();
-        });
-      };
-      new MutationObserver(cleanLoginCopy).observe(document.documentElement, { childList: true, subtree: true });
-      cleanLoginCopy();
-
-      // Runtime diagnostics: recover from an initial module asset failure once, then show a useful screen.
+      window.addEventListener('vite:preloadError', (event) => { event.preventDefault(); reloadOnce(); });
       window.addEventListener('error', (event) => {
         const target = event.target;
-        const isModuleAsset = target && target.tagName === 'SCRIPT' && target.type === 'module';
-        const app = document.querySelector('#app');
-        if (isModuleAsset && app && !app.children.length) {
-          if (reloadOnce()) return;
-        }
-        if (!app || app.children.length) return;
-        app.innerHTML = '<main style="min-height:100vh;display:grid;place-items:center;background:#0b0d0f;color:#fff;font-family:system-ui;padding:24px"><section style="max-width:760px;border:1px solid #343a40;padding:28px;background:#12171b"><strong style="color:#c7a96b">ADTrans RealIndo IMCS</strong><h1 style="margin:12px 0">Application startup error</h1><p style="color:#b8bec3;line-height:1.7">IMCS gagal memuat modul aplikasi. Browser sudah mencoba pemulihan cache otomatis.</p><button onclick="location.reload()" style="padding:12px 18px;cursor:pointer">Reload IMCS</button></section></main>';
+        if (target && target.tagName === 'SCRIPT' && target.type === 'module') reloadOnce();
       }, true);
     </script>
-    <script type="module" src="./src/imcs-entry.js?v=20260916-1"></script>
+    <script type="module" src="./src/imcs-entry.js?v=20260916-2"></script>
   </body>
 </html>
