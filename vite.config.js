@@ -3,9 +3,12 @@ import { fileURLToPath } from 'node:url';
 
 const rootDir = fileURLToPath(new URL('.', import.meta.url));
 
-// GitHub Pages serves this repository under /ADTrans-RealIndo-IMCS/.
-// Custom-domain deployments can set VITE_BASE_PATH=/ at build time.
-const base = process.env.VITE_BASE_PATH || '/';
+// Use relative production asset URLs by default so the same artifact works from:
+// - a local Vite preview
+// - GitHub Pages project hosting
+// - a future custom domain
+// GitHub Pages overrides this with its explicit project base path in CI.
+const base = process.env.VITE_BASE_PATH || './';
 
 export default defineConfig({
   base,
