@@ -1,0 +1,45 @@
+{
+  "backend": {
+    "provider": "supabase",
+    "project_ref": "nfvkdqpxexfymzuwdorx",
+    "database_model": "single-shared-database",
+    "auth_model": "shared-supabase-auth",
+    "security_model": "organization-rbac-department-rls-policy"
+  },
+  "control_plane_repository": "Yudi8377/ADTrans-RealIndo-IMCS",
+  "repositories": [
+    ["BOARD", "ADTrans-RealIndo-Board"],
+    ["EXEC", "ADTrans-RealIndo-Executive"],
+    ["GOV", "ADTrans-RealIndo-Governance"],
+    ["CORPSEC", "ADTrans-RealIndo-CorporateSecretary"],
+    ["PMO", "ADTrans-RealIndo-PMO"],
+    ["CONSTR", "ADTrans-RealIndo-Construction"],
+    ["ENG", "ADTrans-RealIndo-Engineering"],
+    ["QS", "ADTrans-RealIndo-QS"],
+    ["HSEQ", "ADTrans-RealIndo-HSEQ"],
+    ["LAND", "ADTrans-RealIndo-Land"],
+    ["ASSET", "ADTrans-RealIndo-Asset"],
+    ["SALES", "ADTrans-RealIndo-SalesCRM"],
+    ["BD", "ADTrans-RealIndo-BusinessDevelopment"],
+    ["PROC", "ADTrans-RealIndo-Procurement"],
+    ["FIN", "ADTrans-RealIndo-Finance"],
+    ["TAX", "ADTrans-RealIndo-Tax"],
+    ["TREAS", "ADTrans-RealIndo-Treasury"],
+    ["INV", "ADTrans-RealIndo-Investment"],
+    ["HR", "ADTrans-RealIndo-HR"],
+    ["IT", "ADTrans-RealIndo-ITSecurity"],
+    ["LEGAL", "ADTrans-RealIndo-LegalCompliance"],
+    ["RISK", "ADTrans-RealIndo-Risk"],
+    ["IA", "ADTrans-RealIndo-InternalAudit"],
+    ["DOC", "ADTrans-RealIndo-DocumentControl"],
+    ["DATA", "ADTrans-RealIndo-DataAI"]
+  ],
+  "rules": [
+    "No department repository gets a separate production database.",
+    "No service-role key in browser code.",
+    "All department access is enforced by Supabase RLS and server-side permission checks.",
+    "Cross-department operations use shared IDs and audited workflows.",
+    "AI access is routed through the centralized AIG Gateway.",
+    "Financial posting and other critical actions require governed approval."
+  ]
+}
