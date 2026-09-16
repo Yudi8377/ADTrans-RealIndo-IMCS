@@ -1,4 +1,4 @@
-import logoUrl from '../LOGO ADT FIX.jpg';
+const logoUrl = new URL('../LOGO ADT FIX.jpg', import.meta.url).href;
 
 const LOGO_ALT = 'ADTrans RealIndo';
 
