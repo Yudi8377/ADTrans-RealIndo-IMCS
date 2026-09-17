@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://adtransrealindo.com/schemas/device-adapter-event.schema.json",
+  "title": "ADTrans RealIndo Device Adapter Event",
+  "type": "object",
+  "required": ["event_id", "device_uid", "event_type", "occurred_at", "organization_scope", "payload"],
+  "properties": {
+    "event_id": { "type": "string", "format": "uuid" },
+    "device_uid": { "type": "string", "minLength": 1 },
+    "event_type": { "type": "string", "minLength": 1 },
+    "occurred_at": { "type": "string", "format": "date-time" },
+    "timezone": { "type": "string", "default": "Asia/Jakarta" },
+    "organization_scope": { "type": "string", "format": "uuid" },
+    "project_scope": { "type": ["string", "null"], "format": "uuid" },
+    "actor_scope": { "type": ["string", "null"], "format": "uuid" },
+    "correlation_id": { "type": ["string", "null"] },
+    "idempotency_key": { "type": ["string", "null"] },
+    "protocol": { "type": ["string", "null"] },
+    "protocol_version": { "type": ["string", "null"] },
+    "firmware_version": { "type": ["string", "null"] },
+    "signature": { "type": ["string", "null"] },
+    "payload": { "type": "object" }
+  },
+  "additionalProperties": true
+}
