@@ -44,7 +44,7 @@
     <script>
       if (location.hash !== '#imcs') history.replaceState(null, '', location.pathname + '#imcs');
       const reloadOnce = () => {
-        const key = 'adt-imcs-asset-recovery-v7';
+        const key = 'adt-imcs-asset-recovery-v8';
         if (!sessionStorage.getItem(key)) {
           sessionStorage.setItem(key, '1');
           location.reload();
@@ -59,7 +59,6 @@
         if (target && target.tagName === 'SCRIPT' && target.type === 'module') reloadOnce();
       }, true);
     </script>
-    <!-- Source-tree safe placeholder. Vite converts this into the bundled module entry. -->
-    <script id="app-entry" type="text/plain" data-vite-entry="./src/imcs-entry.js"></script>
+    <script type="module" src="./src/imcs-entry.js"></script>
   </body>
 </html>
